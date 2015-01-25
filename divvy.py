@@ -1,6 +1,7 @@
-# Divvy Bikes
-#
-# Here's an example of how to retrieve the list of Divvy bike stations:
+#Christopher Ward
+#MPCS 50101, Winter 2015
+#Homework 3: Divvy Bike Problem
+import math
 
 import json
 from urllib.request import urlopen
@@ -9,13 +10,31 @@ webservice_url = "http://www.divvybikes.com/stations/json"
 data = urlopen(webservice_url).read().decode("utf8")
 result = json.loads(data)
 stations = result['stationBeanList']
-print(stations)
 
-# The Young building has the following latitude and longitude: 41.793414,-87.600915.
-# To measure surface distance, you can treat latitudes and longitudes like x and y coordinates, and calculate distance between locations with the usual Euclidean distance formula.
+#set latitude and longitude for Young
+distances = []
+young_lat = 41.793414
+young_long = -87.600915
 
-# 1. Modify the code above to display the station name and number of available bikes for the station closest to Young.
+#calculate distances between Young and each station using latitude and longitude
+for i in range(len(stations)):
+    distances.append(math.sqrt((stations[i]['latitude']-young_lat)**2 + (stations[i]['longitude']-young_long)**2))
+    
+#associate each distance with an ID in a dictionary
+distances_dict = {}
 
-# You will likely want to consult the JSON stream from Divvy
+for i in range(len(stations)):
+    distances_dict.update({i : distances[i]})
 
-# - http://www.divvybikes.com/stations/json
+#sort list of distances to identify the shortest
+distances.sort()
+
+#iterate through distances_dict to identify the station with shortest distance to Young
+for i, j in distances_dict.items():
+    if distances_dict[i] == distances[0]:
+        print("\nThe station closest to Young is:", stations[i]['stationName'])
+        print("\nThere are", stations[i]['availableBikes'], "bikes currently available.")
+
+
+
+

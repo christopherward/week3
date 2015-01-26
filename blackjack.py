@@ -29,6 +29,7 @@
 
 ## Get a deck of cards
 import random
+import time
 def gen_deck():
     suits = "\u2663 \u2665 \u2666 \u2660".split()
     values = "A 2 3 4 5 6 7 8 9 10 J Q K".split()
@@ -57,10 +58,20 @@ def deal_two(deck):
 def deal_one_player(deck):
     playerhand.append(deck[0])
     deck.pop(0)
+    print("\nYour cards: ", end="")
+    for i in playerhand:
+        print(i + " ", end="")
+    print("\nYour total:", count_cards(playerhand))
 
 def deal_one_dealer(deck):
+    print("\nDealer chose another card...")
+    #time.sleep(4)
     dealerhand.append(deck[0])
     deck.pop(0)
+    print("\nDealer's cards: ", end="")
+    for i in dealerhand:
+        print(i + " ", end="")
+    print("\nDealer's total:", count_cards(dealerhand))
 
 def count_cards(hand):
     total = 0
@@ -71,6 +82,11 @@ def count_cards(hand):
             total += 10
         else:
             total += int(card[0])
+    #count aces as 1 if counting as 11 makes hand go over 21
+    for card in hand:
+        if card[0] == 'A':
+            if total > 21:
+                total -= 10
     return total
 
 ## User can choose to take cards as long as score < 21
@@ -87,42 +103,49 @@ def play():
 
     deal_two(deck)
 
-    another_card = ""
-    another_game = 'y'
-    while another_game.lower() != 'n':
-        while another_card.lower() != "n" and count_cards(playerhand) <= 21:
+    another_card = " "
+    another_game = " "
+    while another_game.lower()[0] != 'n':
+        while another_card.lower()[0] != "n" and count_cards(playerhand) <= 21:
             another_card = input("\nWould you like another card? (y/n) ")
-            if another_card.lower() == 'y':
+            if another_card.lower()[0] == 'y':
                 deal_one_player(deck)
-                print("\nYour cards: ", end="")
-                for i in playerhand:
-                    print(i + " ", end="")
+            else:
                 print("\nYour total:", count_cards(playerhand))
 
+        #determine outcomes
         if count_cards(playerhand) > 21:
             print("\nYou went over. Dealer wins.")
-        elif count_cards(dealerhand) < 17:
+        elif count_cards(playerhand) == 21:
+            print("\nYou got 21! You win.")
+        #if a player neither busted nor got 21, invoke dealer logic
+        elif count_cards(playerhand) < 21:
+            print("\nDealer's cards: ", end="")
+            for i in dealerhand:
+                print(i + " ", end="")
+            print("\nDealer's total:", count_cards(dealerhand))
+            #deal one card at a time until the dealer has a total of at least 17
             while count_cards(dealerhand) < 17:
                 deal_one_dealer(deck)
                 
-        print("\nDealer's cards: ", end="")
-        for i in dealerhand:
-            print(i + " ", end="")
-        print("\nDealer's total:", count_cards(dealerhand))
-        if count_cards(dealerhand) == 21:
-            print("\nDealer wins.")
-        elif count_cards(dealerhand) > 21:
-            print("\nDealer went over. You win.")
-        elif count_cards(dealerhand) >= 17 and count_cards(dealerhand) <= 20:
-            if count_cards(playerhand) > count_cards(dealerhand):
-                print("\nYou win.")
-            elif count_cards(playerhand) < count_cards(dealerhand):
-                print("\nDealer wins.")
-            elif count_cards(playerhand) == count_cards(dealerhand):
-                print("\nIt's a tie!")
+            #determine outcomes for each possible dealer total scenario
+            if count_cards(dealerhand) == 21:
+                print("\nDealer got 21! Dealer wins.")
+            elif count_cards(dealerhand) > 21:
+                print("\nDealer busted. You win.")
+            elif count_cards(dealerhand) < 21:
+                if count_cards(playerhand) < count_cards(dealerhand):
+                    print("\nDealer wins.")
+                elif count_cards(playerhand) > count_cards(dealerhand):
+                    print("\nYou win.")
+                elif count_cards(playerhand) == count_cards(dealerhand):
+                    print("\nIt's a tie!")
         another_game = input("\nWould you like to play again? (y/n) ")
-        if another_game.lower() == 'y':
+
+        #ask user for another game
+        if another_game.lower()[0] == 'y':
             play()
+        break
 play()
                 
 
